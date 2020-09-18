@@ -1,46 +1,34 @@
 <script>
-  import prettier from "./prettier/src/standalone.js";
   import sveltePlugin from "./plugin.js";
+  let formatted = "";
 
   let code;
-  code = `<div><p>Hello</p>
-  <button>World</button></div>`;
-  code =
-    `<script>	let jobNames = ['Job1', 'Job2', 'Job3']
-	let jobHours = Array.from(Array(3), () => Array.from(Array(2)));	
-	let cell = Array.from(Array(3), () => Array.from(Array(3)));
-	let newText = false
-	
-	function changeInput(e) {
-    let value = e.target.value;
-    let input = value.slice(-1); 
-		if (newText) {
-      newText = false;
-      e.target.value = input;
-    }
-
-    if (e.target.type === 'number') {
-      if (!Number(input) && Number(input) !== 0) {
-        e.target.value = '';
-      }
-
-      if (Number(value) > 24) {
-        e.target.value = input;
-      }
-    }
-		
-		console.log(jobNames)
-  }<` +
-    "/" +
-    "script>";
+  code = `<button
+  on:click={() => {
+    startCount += 10;
+    endCount += 10;
+  }}>count</button>`;
 
   function format() {
-    code = prettier.format(code, {
+    code = sveltePlugin.format(code, {
       parser: "svelte",
       plugins: [sveltePlugin],
     });
   }
+
+  function handleKeydown(event) {
+    if (
+      event.shiftKey &&
+      event.altKey &&
+      (event.key === "f" || event.key === "F")
+    ) {
+      format();
+      formatted = "formatted";
+      setTimeout(() => (formatted = ""), 1000);
+    }
+  }
 </script>
 
+<svelte:window on:keydown={handleKeydown} />
 <textarea bind:value={code} style="height:50%; width: 50%; margins: 1em auto" />
-<button on:click={format}>FORMAT</button>
+<p>{formatted}</p>

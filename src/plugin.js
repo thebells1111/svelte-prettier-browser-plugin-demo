@@ -2,9 +2,11 @@
 
 Object.defineProperty(exports, "__esModule", { value: true });
 
-const prettier = require("prettier");
+const doc = require("prettier/doc");
+const { format } = require("prettier/standalone");
 const jsPlugin = require("prettier/parser-babel");
 const htmlPlugin = require("prettier/parser-html");
+const escodegen = require("escodegen");
 
 // @see http://xahlee.info/js/html5_non-closing_tag.html
 const selfClosingTags = [
@@ -485,7 +487,7 @@ const {
   fill,
   breakParent,
   literalline,
-} = prettier.doc.builders;
+} = doc.builders;
 let ignoreNext = false;
 const keepIfLonelyLine = Object.assign({}, line, {
   keepIfLonely: true,
@@ -686,8 +688,9 @@ function print(path, options$$1, print) {
         }
       }
     }
+    case "ArrowFunctionExpression":
+      return escodegen.generate(node);
     case "MustacheTag":
-      console.log(node);
       return concat(["{", printJS(path, print, "expression"), "}"]);
     case "IfBlock": {
       const def = [
@@ -915,34 +918,25 @@ function print(path, options$$1, print) {
     case "Spread":
       return concat([line, "{...", printJS(path, print, "expression"), "}"]);
     case "Script":
-      let jsCode = prettier.format(getSnippedContent(node), {
+      let jsCode = format(getSnippedContent(node), {
         parser: "babel",
         plugins: [jsPlugin],
       });
-      let htmlCode = prettier.format(`<script>${jsCode}</script>`, {
+      let htmlCode = format(`<script>${jsCode}</script>`, {
         parser: "html",
         plugins: [htmlPlugin],
       });
       return htmlCode;
     case "BinaryExpression":
-      console.log(node);
-      return concat([
-        path.call(print, "left"),
-        " ",
-        node.operator,
-        path.call(print, "right"),
-      ]);
+      return escodegen.generate(node);
     case "Literal":
-      return " " + node.raw;
+      return node.raw;
     case "ConditionalExpression":
-      console.log(node);
-      return concat([
-        path.call(print, "test"),
-        " ? ",
-        path.call(print, "consequent"),
-        " : ",
-        path.call(print, "alternate"),
-      ]);
+      return escodegen.generate(node);
+    case "MemberExpression":
+      return escodegen.generate(node);
+    case "TemplateLiteral":
+      return escodegen.generate(node);
   }
   console.error(JSON.stringify(node, null, 4));
   throw new Error("unknown node type: " + node.type);
@@ -1201,4 +1195,5 @@ exports.languages = languages;
 exports.parsers = parsers;
 exports.printers = printers;
 exports.options = options;
+exports.format = format;
 //# sourceMappingURL=plugin.js.map
