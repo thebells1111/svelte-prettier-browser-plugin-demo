@@ -1,5 +1,5 @@
 <script>
-  import prettier from "prettier";
+  import prettier from "./prettier/src/standalone.js";
   import sveltePlugin from "./plugin.js";
 
   let code;
