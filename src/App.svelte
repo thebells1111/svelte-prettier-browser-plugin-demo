@@ -1,13 +1,20 @@
 <script>
-  import sveltePlugin from "./plugin.js";
-  let formatted = "";
+  import sveltePlugin from "./newPlugin.js";
 
-  let code;
-  code = `<button
-  on:click={() => {
-    startCount += 10;
-    endCount += 10;
-  }}>count</button>`;
+  let code =
+    `<script>
+    let firstName = 'world';
+
+  function loaded(){
+console.log("loaded")
+  }; let red = false; let greeter;
+
+
+<` +
+    `/` +
+    `script>
+
+<h1 class='greeting' class:red on:click={()=>red=!red} use:loaded bind.this={greeter}>Hello {name}!</h1>`;
 
   function format() {
     code = sveltePlugin.format(code, {
@@ -23,12 +30,10 @@
       (event.key === "f" || event.key === "F")
     ) {
       format();
-      formatted = "formatted";
-      setTimeout(() => (formatted = ""), 1000);
     }
   }
 </script>
 
 <svelte:window on:keydown={handleKeydown} />
 <textarea bind:value={code} style="height:50%; width: 50%; margins: 1em auto" />
-<p>{formatted}</p>
+<button on:click={format}>Format</button>
