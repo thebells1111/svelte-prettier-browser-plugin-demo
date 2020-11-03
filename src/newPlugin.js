@@ -720,6 +720,13 @@ var plugin = createCommonjsModule(function (module, exports) {
         return node.expression.name;
       }
       case "Attribute": {
+        if (node.name === "✂prettier:content✂") {
+          jsCode = format(atob(node.value[0].data), {
+            parser: "babel",
+            plugins: [parserBabel__default["default"]],
+          });
+          return jsCode;
+        }
         if (isOrCanBeConvertedToShorthand(node)) {
           if (options$$1.svelteStrictMode) {
             return concat([line, node.name, '="{', node.name, '}"']);
@@ -1248,7 +1255,7 @@ var plugin = createCommonjsModule(function (module, exports) {
       },
       preprocess: (text) => {
         text = snipTagContent("style", text);
-        text = snipTagContent("script", text, "{}");
+        text = snipTagContent("script", text, "");
         return text.trim();
       },
       locStart,
